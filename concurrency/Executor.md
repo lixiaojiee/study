@@ -35,3 +35,13 @@ Executor框架柱与奥由3大部分组成：
 ​	c、获取PriorityQueue的头元素，如果PriorityQueue不为空，则唤醒在Condition中等待的所有线程
 
 3）释放Lock
+
+## 3、FutureTask
+
+FutureTask可以处于下面三种状态：
+
+1）未启动。FutureTask.run()方法还没有被执行之前，FutureTask处于未启动状态
+
+2）已启动。FutureTask.run()方法被执行的过程中，FutureTask处于已启动状态
+
+3）已完成。FutureFask.run()方法执行完成后正常结束，或被取消，或执行FutureTask.run()方法时抛出异常而异常结束，FutureTask处于已完成状态
