@@ -44,4 +44,16 @@ FutureTask可以处于下面三种状态：
 
 2）已启动。FutureTask.run()方法被执行的过程中，FutureTask处于已启动状态
 
-3）已完成。FutureFask.run()方法执行完成后正常结束，或被取消，或执行FutureTask.run()方法时抛出异常而异常结束，FutureTask处于已完成状态
+3）已完成。FutureTask.run()方法执行完成后正常结束，或被取消，或执行FutureTask.run()方法时抛出异常而异常结束，FutureTask处于已完成状态
+
+当FutureTask处于未启动或启动状态时，执行FutureTask.get()方法将导致调用线程阻塞；
+
+当FutureTask处于已完成状态时，执行FutureTask.get()方法将导致调用线程立即返回结果或抛出异常
+
+当FutureTask处于未启动状态时，执行FutureTask.cancel()方法将导致此任务永远不会被执行
+
+当FutureTask处于已启动状态时，执行FutureTask.cancel(true)方法将以中断执行此任务线程的方式来试图停止任务
+
+当FutureTask处于已启动状态时，执行FutureTask.cancel(false)方法将不会对正在执行此任务的线程产生影响（郑子啊执行的任务将会运行完成）
+
+当FutureTask处于已完成状态时，执行FutureTask.cancel()方法将返回false
