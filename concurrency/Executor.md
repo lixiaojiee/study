@@ -8,7 +8,7 @@ Executor框架柱与奥由3大部分组成：
 
 3、异步计算结果。
 
-![](/Users/lixiaojie/学习/脑图/图片/Executor.png)
+![](/pictures/Executor.png)
 
 # 二、ScheduledThreadPoolExecutor
 
