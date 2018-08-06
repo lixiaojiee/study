@@ -1,6 +1,6 @@
 # 一、Executor框架的结构
 
-Executor框架柱与奥由3大部分组成：
+Executor框架主要由3大部分组成：
 
 1、任务。包括被执行任务需要实现的接口：Runnable和Callable
 
