@@ -66,3 +66,55 @@ sentinel down-after-milliseconds <master-name> <times>
 sentinel parallel-syncs <master-name> <nums>
 ```
 
+当Sentinel节点集合对主节点故障判定达成一致时，Sentinel领导者节点会做故障转移操作，选出新的主节点，原来的从节点会向新的主节点发起复制操作，`parallel-syncs`就是用来限制在一次故障转移之后，每次向新的主节点同时发起复制操作，parallel-syncs=3表示三个从节点同时向主节点发起复制操作，parallel-syncs=1表示一个从节点同时向主节点发起复制操作，这个时候会发起轮询复制
+
+4、sentinel failover-timeout
+
+```
+sentinel failover-timeout <master-name> <times>
+```
+
+failover-timeout通常被解释成故障转移的超时时间，但实际上它作用于故障转移的各个阶段：
+
+a、选出合适的从节点
+
+b、晋升选出的从节点为主节点
+
+c、命令其余从节点复制新的主节点
+
+d、等待原主节点恢复后命令它去复制新的主节点
+
+failover-timeout的作用具体体现在四个方面：
+
+1）如果Redis Sentinel对一个主节点故障转移失败，那么下次再对该主节点做故障转移的起始时间时failover-timeout的2倍
+
+2）在b阶段时，如果Sentinel节点向a阶段选出来的节点执行`slaveof no one`操作一只失败（例如该从节点此时出现故障），当过程超过failover-timeout时，则故障转移失败
+
+3）在b阶段如果执行成功，Sentinel节点还会执行info命令确认a阶段选出来的节点确实晋升为主节点，如果此过程执行时间超过failover-timeout时，则故障转移失败
+
+4）如果c阶段执行时间超过了failover-timeout（不包含复制时间），则故障转移失败，注意即使超过了这个时间，Sentinel节点也会最终配置从节点去同步最新的主节点
+
+5、sentinel auth-pass
+
+```
+sentinel auth-pass <master-name> <password>
+```
+
+如果Sentinel监控的主节点配置了密码，sentinel auth-pass配置通过添加主节点的密码，防止Sentinel节点对主节点无法监控
+
+6、sentinel notification-script
+
+```
+sentinel notification-script <master-name> <script-path>
+```
+
+Sentinel notification-script的作用是在故障转移期间，当一些警告级别的Sentinel时间发生（指重要事件，例如-sdown：客观下线，-odown：主观下线）时，会触发对应路径的脚本，并向脚本发送相应的事件参数作为邮件或者短信报警依据
+
+7、sentinel client-reconfig-script
+
+```
+sentinel client-reconfig-script <master-name> <script-path>
+```
+
+Sentinel client-reconfig-script的作用时在故障转移结束后，会触发对应路径的脚本，并向脚本发送故障转移结果的相关参数，该脚本会接收每个Sentinel节点传过来的故障转移结果参数，并触发类似短信或邮件报警
+
