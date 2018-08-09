@@ -118,3 +118,7 @@ sentinel client-reconfig-script <master-name> <script-path>
 
 Sentinel client-reconfig-script的作用时在故障转移结束后，会触发对应路径的脚本，并向脚本发送故障转移结果的相关参数，该脚本会接收每个Sentinel节点传过来的故障转移结果参数，并触发类似短信或邮件报警
 
+监控多个主节点：
+
+Sentinel监控多个主节点的配置就是只需要指定多个masterName来区分不同的节点即可
+
