@@ -166,3 +166,18 @@
 注：黄色代表参与者，蓝色代表协调者
 
 # 二、Paxos算法
+
+下边是对paxos算法的陈述：
+
+**阶段一：**
+
+1、Proposer选择一个提案编号为M~n~，然后向Acceptor的某个超过半数的子集成员发送编号为M~n~的Prepare请求
+
+2、如果一个Acceptor收到一个编号为M~n~的Prepare请求，且编号M~n~大于该Acceptor已经响应的所有Prepare请求的编号，那么他就会将它已经批准过的最大编号的提案作为响应反馈给Proposer，同时该Acceptor会承诺不会再批准任何编号小于M~n~的提案
+
+**阶段二：**
+
+1、如果Proposer收到来自半数以上的Acceptor对于其发出的编号为M~n~的Prepare请求的响应，那么它就会发送一个针对[M~n~,V~n~]提案的Accept请求给Acceptor。注意，V~n~的值就是收到的响应中编号最大的提案的值，如果响应中不包含任何提案，那么他就是任意值
+
+2、如果Acceptor收到这个针对[M~n~,V~n~]提案的Accept请求，只要该Acceptor尚未对编号大于M~n~的Prepare请求作出响应，它就可以通过这个提案
+
