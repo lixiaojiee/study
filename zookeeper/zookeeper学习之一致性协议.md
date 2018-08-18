@@ -167,7 +167,14 @@
 
 # 二、Paxos算法
 
-下边是对paxos算法的陈述：
+## 1、paxos算法的陈述：
+
+**prepare请求：**
+
+Proposer选择一个新的提案编号M~n~，然后向某个Acceptor集合的成员发送请求，要求该集合中的Acceptor做出如下回应：
+
+- 向Proposer承诺，保证不再批准任何编号小于M~n~的提案
+- 如果Acceptor已经批准过任何提案，那么其就向Proposer反馈当前该Acceptor已经批准的编号小于M~n~但为最大编号的那个提案的值
 
 **阶段一：**
 
@@ -177,7 +184,13 @@
 
 **阶段二：**
 
-1、如果Proposer收到来自半数以上的Acceptor对于其发出的编号为M~n~的Prepare请求的响应，那么它就会发送一个针对[M~n~,V~n~]提案的Accept请求给Acceptor。注意，V~n~的值就是收到的响应中编号最大的提案的值，如果响应中不包含任何提案，那么他就是任意值
+1、如果Proposer收到来自**半数以上的Acceptor**对于其发出的编号为M~n~的Prepare请求的响应，那么它就会发送一个针对[M~n~,V~n~]提案的Accept请求给Acceptor。注意，V~n~的值就是收到的响应中编号最大的提案的值，如果响应中不包含任何提案，那么他就是任意值
 
 2、如果Acceptor收到这个针对[M~n~,V~n~]提案的Accept请求，只要该Acceptor尚未对编号大于M~n~的Prepare请求作出响应，它就可以通过这个提案
+
+## 2、通过选取主Proposer保证算法的活性
+
+为了保证Paxos算法流程的可持续性，以避免陷入死循环，就必须选择一个主Proposer，并规定只有主Proposer才能提出议案
+
+
 
