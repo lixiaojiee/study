@@ -14,9 +14,9 @@ zookeeper允许用户为每个节点添加一个特殊的属性：SEQUENTIAL。�
 
 Zookeeper的每个ZNode上都会存储数据，对应于每个ZNode，ZooKeeper都会为其维护一个叫做Stat的数据结构，Stat中记录了这个ZNode的三个数据版本，分别为：
 
-- version：当前ZNode的版本
-- cversion：当前ZNode子节点的版本
-- aversion：当前ZNode的ACL版本
+- **version：**当前ZNode的版本
+- **cversion：**当前ZNode子节点的版本
+- **aversion：**当前ZNode的ACL版本
 
 ## 3、Watcher
 
