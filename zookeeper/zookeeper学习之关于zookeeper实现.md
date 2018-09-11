@@ -61,3 +61,24 @@ zookeeper中为数据节点引入了版本的概念，每个数据节点都具�
 zookeeper中的版本概念和传统意义上的软件版本有很大的区别，它表示的是对数据节点的数据内容、子节点列表、或是节点ACL信息的修改次数
 
 注：version版本号表示的是对数据节点数据内容变更的次数，签掉的是变更次数，因此即使前后两次变更并没有使得数据内容的值发生变化，version的值依然会变更
+
+## 4、Watcher—数据变更通知
+
+**watcher的工作机制：**
+
+客户端在向zookeeper服务器注册watcher的同时，会将watcher对象存储在客户端的WatcherManager中。当zookeeper服务器端触发watcher事件后，会向客户端发送通知，客户端线程从WatcherManager中取出对应的watcher对象来执行回调逻辑
+
+**watcher的几个事件类型说明：**
+
+- NodeDataChanged（数据节点的数据内容发生变更）：此处说的变更包括节点的数据内容和数据版本号
+- NodeChildrenChanged（数据节点的子节点列表发生变更）：这里说的子节点列表的变化特指子节点个数和组成情况的变更，即新增子节点或删除子节点，而**子节点内容的变化是不会触发这个事件的**
+
+**关于回调：**
+
+- WatchedEvent：是一个逻辑事件，用于服务端和客户端程序执行过程中所需的逻辑对象
+- WatcherEvent：其和WatchedEvent表示的是统一个事物，都是对一个服务端事件的封装，但其因为实现了序列化接口，因此可以用于网络传输
+
+WatcherEvent存在的原因：服务端在生成WatchedEvent事件之后，会调用getWrapper方法将自己包装成一个可序列化的WatcherEvent事件，以便通过网络传输到客户端。客户端在接收到服务端这个事件对象后，首先会将WatcherEvent事件还原成一个WatchedEvent事件，并传递给process方法处理，回调方法process根据入参就能够解析出完整的服务端事件了
+
+客户端无法直接从该事件中获取到对应数据节点的原始数据内容以及变更后的新数据内容，而是需要客户端再次主动去重新获取数据—这也是zookeeper watcher机制的一个非常重要的特性
+
