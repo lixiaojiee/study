@@ -92,4 +92,98 @@ WatcherEvent存在的原因：服务端在生成WatchedEvent事件之后，会�
 
 ## 5、ACL—保障数据的安全
 
-ACL，即访问控制列表，包括三部分：权限模式（Scheme）、授权对象（ID）和权限（Permission），通常使用“scheme ​: id :​permission”来标识一个有效的ACL信息
+ACL，即访问控制列表，包括三部分：权限模式（Scheme）、授权对象（ID）和权限（Permission），通常使用“scheme : id :permission”来标识一个有效的ACL信息
+
+#### 1）ACL的组成：
+
+##### (1)权限模式：Scheme
+
+权限模式用来确定权限验证过程中使用的检验策略，在zookeeper中，使用最多的就是以下四种权限模式：
+
+###### a、IP
+
+IP模式通过IP地址粒度来进行权限控制，如：“ip:127.0.0.1”，即表示权限控制都是针对这个ip地址的。同时，IP模式也支持按照网段的方式进行配置，例如：“ip:192.168.1/24”，表示针对192.168.1.*这个IP段进行权限控制
+
+###### b、Digest
+
+Digest是最常用的权限控制模式，其以类似于"username:password"的形式的权限标识来进行权限配置。当我们通过"username:password"形式配置了权限标识后，zookeeper会对其先后进行两次编码处理，分别是SHA-1算法加密和BASE64编码
+
+###### c、World
+
+World是一种最开发的权限控制模式，这种权限控制模式没有任何作用，数据节点的访问权限对所有的用户开放
+
+###### d、Super
+
+Super模式，顾名思义就是超级用户的意思，是一种特殊的Digest模式，，在Super模式下，超级用户可以对任意zookeeper上的数据节点进行任何操作
+
+##### (2）授权对象：ID
+
+授权对象指的是权限赋予的用户或一个指定的实体。在不同的权限模式下，授权对象是不同的
+
+下表是权限模式和授权对象的对应关系：
+
+| 权限模式 | 授权对象                                         |
+| -------- | ------------------------------------------------ |
+| IP       | 通产是一个IP地址或IP段                           |
+| Digest   | 自定义，通常是"username:BASE61(SHA-1(password))" |
+| World    | 只有一个ID：“anyone”                             |
+| Super    | 与Digest模式一致                                 |
+
+##### (3）权限：Permission
+
+权限就是指那些通过权限检查后可以被允许执行的操作。在zookeeper中，所有对数据的操作权限分为以下五大类
+
+- CREATE（C）：数据节点的创建权限，允许授权对象在该数据节点下创建子节点
+- DELETE（D）：**子节点**的删除权限，允许授权对象删除该数据节点的子节点
+- READ（R）：数据节点的读取权限，允许授权对象**访问该数据节点**并**读取其数据内容**或**子节点列表**等
+- WRITE（W）：数据节点的更新权限，允许授权对象对该数据节点进行更新操作
+- ADMIN（A）：数据节点的管理权限，允许授权对象对该数据节点进行ACL相关设置操作
+
+#### **2)权限扩展体系：**
+
+zookeeper允许开发人员通过制定的方式对zookeeper的权限进行扩展：
+
+**实现自定义权限控制器：**
+
+可以通过实现zookeeper提供的AuthenticationProvider接口来实现自定义权限控制器
+
+**注册自定义的权限控制器：**
+
+zookeeper支持通过系统属性和配置文件两种方式来注册自定义的权限控制器。
+
+系统属性-Dzookeeper.authProvier.X(其中，X代表序号)，如下：
+
+```
+-Dzookeeper.authProvieer.1=com.zk.CustomerAuthenticationProvicer
+```
+
+配置文件的方式：在zookeeper的配置文件zoo.cfg中配置类似如下配置项：
+
+```
+authProvider.1=com.zk.CustomerAuthenticationProvicer
+```
+
+权限控制器的注册，zookeeper采用延迟加载的策略，即只有在第一次处理包含权限控制的客户端请求时，才会进行权限控制器的初始化。
+
+#### 3)ACL的管理
+
+设置ACL，可以通过两种方式进行ACL设置，一种是在数据节点创建的同时进行ACL权限的设置，命令格式如下：
+
+```
+create [-s] [-e] path data acl
+```
+
+另一种方式则是使用setAcl命令单独对已经存在的数据节点进行ACL设置：
+
+```
+setAcl path acl
+```
+
+#### 4)Super模式的用法
+
+如果一个持久节点包含了ACL权限控制，而其创建者客户端已经退出或已不再使用，那这些数据节点该如何清理呢？这个时候，就需要在ACL的Super模式下，使用超级管理员权限来进行处理了。要使用超级管理员权限，首先需要在zookeeper服务器上开启Super模式，方法是在zookeeper服务器启动的时候，添加如下系统属性：
+
+```
+-Dzookeeper.DigestAuthenticationProvicer.superDigest=username:password
+```
+
