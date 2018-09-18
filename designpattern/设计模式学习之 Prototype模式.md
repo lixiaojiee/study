@@ -99,6 +99,6 @@ public class ConcretePrototype implements Prototype {
 
   Client角色负责使用复制实例的方法生成新的实例
 
-**Prototype模式的类图如下：**
+**Prototype模式的类关系图如下：**
 
 ![](../pictures/Prototype模式类关系图.png)
