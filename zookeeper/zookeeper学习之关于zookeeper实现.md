@@ -191,10 +191,10 @@ setAcl path acl
 
 zookeeper的客户端主要由以下几个核心组件组成
 
-- **ZooKeeper实例：**客户端的入口
-- **ClientWatchManager：**客户端Watcher管理器
-- **HostProvider：**客户端地址列表管理器
-- **ClientCnxn：**客户端核心线程，其内部又包含两个线程，即SendThread和EventThread，前者是一个I/O线程，主要负责ZooKeeper客户端和服务端之间的网络I/O通信；后者是一个事件线程，主要负责对服务端事件进行处理
+- **ZooKeeper实例：** 客户端的入口
+- **ClientWatchManager：** 客户端Watcher管理器
+- **HostProvider：** 客户端地址列表管理器
+- **ClientCnxn：** 客户端核心线程，其内部又包含两个线程，即SendThread和EventThread，前者是一个I/O线程，主要负责ZooKeeper客户端和服务端之间的网络I/O通信；后者是一个事件线程，主要负责对服务端事件进行处理
 
 **客户端的整个初始化和启动过程大体可以分为以下三个步骤：**
 
