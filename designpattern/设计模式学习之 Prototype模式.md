@@ -101,5 +101,4 @@ public class ConcretePrototype implements Prototype {
 
 **Prototype模式的类图如下：**
 
-![]()
-
+![](../pictures/Prototype模式类关系图.png)
