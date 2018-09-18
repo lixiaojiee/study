@@ -187,3 +187,109 @@ setAcl path acl
 -Dzookeeper.DigestAuthenticationProvicer.superDigest=username:password
 ```
 
+# 二、客户端
+
+zookeeper的客户端主要由以下几个核心组件组成
+
+- **ZooKeeper实例：**客户端的入口
+- **ClientWatchManager：**客户端Watcher管理器
+- **HostProvider：**客户端地址列表管理器
+- **ClientCnxn：**客户端核心线程，其内部又包含两个线程，即SendThread和EventThread，前者是一个I/O线程，主要负责ZooKeeper客户端和服务端之间的网络I/O通信；后者是一个事件线程，主要负责对服务端事件进行处理
+
+**客户端的整个初始化和启动过程大体可以分为以下三个步骤：**
+
+- 设置默认的Watcher
+- 设置ZooKeeper服务器地址列表
+- 创建ClientCnxn
+
+如果再ZooKeeper的构造方法中传入了一个Watcher对象的话，那么ZooKeeper就会将这个Watcher对象保存在ZKWatchManager的defaultWatcher中，作为整个客户端回话期间的默认Watcher
+
+## 1、一次会话的创建过程
+
+**初始化阶段：**
+
+**1)初始化ZooKeeper对象**
+
+在zookeeper的初始化过程中，会创建一个客户端的Watcher管理器：ClientWatchManager
+
+**2)设置回话默认Watcher**
+
+如果在构造方法中传入了一个Watcher对象，那么客户端会将这个对象作为默认Watcher保存在ClientWatchManager中
+
+**3)构造ZooKeeper服务器地址列表管理器：HostProvider**
+
+对于构造方法中传入的服务器地址，客户端会将其存放在服务器地址列表管理器HostProvider中
+
+**4)创建并初始化客户端网络连接器：ClientCnxn**
+
+ZooKeeper客户端首先会创建一个网络连接器ClientCnxn，用来管理客户端与服务器的网络交互。另外，客户端在创建ClientCnxn的同时，还会初始化客户读研的两个核心队列**outgoingQueue**和**pendingQueue**，分别作为客户端的请求发送队列和服务端响应的等待队列
+
+**5)初始化SendThread和EventThread**
+
+客户端会创建两个核心网络线程SendThread和EventThread，前者用于管理客户端和服务端的所有网络I/O，后者则用于进行客户端的事件处理。同时，客户端还会降ClientCnxnSocket分配给SendThread作为底层网络I/O处理器，并初始化EventThread的待处理事件队列waitingEvents，用于存放素有等待被客户端处理的事件
+
+**会话的创建阶段：**
+
+**6)启动SendThread和EventThread**
+
+SendThread首先会判断当前客户端的状态，进行一系列清理性工作，为客户端发送“会话创建”请求做准备
+
+**7)获取一个服务器地址**
+
+在开始创建TCP连接之前，SendThread首先需要获取一个ZooKeeper服务器的目标地址，这通常是从HostProvider中随机获取一个地址，然后委托给ClientCnxnSocket去创建与ZooKeeper服务器之间的TCP连接
+
+**8)创建TCP连接**
+
+获取一个服务器地址后，ClientCnxnSocket负责和服务器创建一个TCP长连接
+
+**9)构造ConnectRequest请求**
+
+在TCP连接创建完毕之后，SendThread会负责根据当前客户端的实际设置，构造出一个ConnectRequest请求，该请求代表了客户端试图与服务器创建一个会话。同事，ZooKeeper客户端还会进一步将该请求包装成网络I/O层的Packet对象，放入请求发送队列outgoingQueue中去
+
+**10)发送请求**
+
+当客户端请求准备完毕后，就可以开始向服务端发送请求了。ClientCnxnSocket负责从outgoingQueue中取出一个待发送的Packet对象，将其序列化成ByteBuffer后，向服务端进行发送
+
+**响应处理阶段：**
+
+**11)接受服务端响应**
+
+ClientCnxnSocket接收到服务端的响应后，会首先判断当前的客户端状态是否是”已初始化“，如果尚未完成初始化，那么就认为该响应一定是会话创建请求的响应，直接交由readConnectionResult方法来处理
+
+**12)处理Response**
+
+ClientCnxnSocket会对接收到的服务端响应进行反序列化，得到ConnectionResponse对象，并从中或得到ZooKeeper服务端分配的会话sessionId
+
+**13)连接成功**
+
+连接成功后，一方面需要通知SendThread线程，进一步对客户端进行会话参数的设置，包括readTimeout和connectionTimeout等，并更新客户端状态；另一方面，需要通知地址管理器HostProvider当前成功连接的服务器地址
+
+**14)生成事件：SyncConnected-None**
+
+为了能让上层应用感知到会话的成功创建，SendThread会生成一个时间SyncConnected-None，代表客户端与服务器会话创建成功，并将该时间传递给EventThread线程
+
+**15)查询Watcher**
+
+EventThread线程收到事件后，会从ClientWatchManager管理器中查询出对应的Watcher，针对SyncConnected-None事件，那么就直接找出步骤2)中存储的默认Watcher，然后将其放到EventThread的waitingEvents队列中去
+
+**16)处理事件**
+
+EventThread不断地从waitingEvents队列中取出待处理的Watcher对象，然后直接调用该对象的process接口方法，以达到触发Watcher的目的
+
+## 2、服务器地址列表
+
+这里需要了解的是，ZooKeeper如何从这个服务器列表中选择服务器机器的呢？是按顺序访问，还是随机访问呢？
+
+### 1)Chroot：客户端隔离命名空间
+
+Chroot允许每个客户端为自己设置一个命名空间。如果一个ZooKeeper客户端设置了Chroot，那么该客户端对服务器的任何操作，都将会被现在在其自己的命名空间下
+
+客户端可以通过在connectionString中添加后缀的方式来设置Chroot：
+
+```
+192.168.0.1:2181,192.168.0.1:2182/apps/X
+```
+
+### 2)HostProvider：地址列表管理器
+
+ZooKeeper的服务器地址保存在一个List集合中，并且这些地址顺序被随机打散，然后将这些地址拼装成一个环形的循环队列，这个环形队列包含两个游标：currentIndex和lastIndex。currentIndex标识循环队列中当前遍历到的那个元素的位置，lastIndex则标识当前正在使用的服务器地址位置。初始化的时候，currentIndex和lastIndex的值都为-1。在每次尝试获取一个服务器地址的时候，都会首先将currentIndex游标向前移动1位，如果发现游标移动超过了整个地址列表的长度，那么就重置未为0，回到开始的位置重新开始，这样一来，就实现了循环队列
