@@ -108,5 +108,14 @@ Builder模式中的各种角色:****
 
 - **Director(监工):**
 
-  Director角色负责使用Builder角色的接口来生成实例。它并不依赖于ConcreteBuilder角色。为了确保不论ConcreteBuilder角色
+  Director角色负责使用Builder角色的接口来生成实例。它并不依赖于ConcreteBuilder角色。为了确保不论ConcreteBuilder角色是如何被定义的，Director角色都能正常工作，它只调用在Builder角色中被定义的方法
+  
+
+**其类关系图如下：**
+
+![](../pictures/Builder模式类关系图.png)
+
+**时序图如下：**
+
+![](../pictures/Builder模式时序图.png)
 
