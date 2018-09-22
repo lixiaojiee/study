@@ -68,7 +68,7 @@ d、由于慢查询日志是一个先进先出的队列，也就是说在慢查�
 
 # 二、Pipeline
 
-pipelie可以将一组redis命令进行组装，通过一次RTT传输给redis，再将这组redis命令的执行结果按顺序返回给客户端
+pipeline可以将一组redis命令进行组装，通过一次RTT传输给redis，再将这组redis命令的执行结果按顺序返回给客户端
 
 原生批量命令与pipeline对比：
 
