@@ -130,7 +130,7 @@ redis即使在单线程下，其执行速度仍然快，归结于以下几点：
 set key value [ex seconds] [px milliseconds] [nx|xx]
 ```
 
-nx:键必须不存在，才可以设置成功，用于添加
+nx：键必须不存在，才可以设置成功，用于添加
 
 xx：键必须存在，才可以设置成功，用于更新
 
