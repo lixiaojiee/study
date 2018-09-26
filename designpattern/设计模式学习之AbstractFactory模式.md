@@ -258,7 +258,7 @@ public class ListPage extends Page {
 
 根据以上代码示例绘出如下类图结构：
 
-![](../pictures/抽象工厂模式类图.png)
+![](../pictures/抽象工厂模式类关系图.png)
 
 **AbstractFactory模式中的相关角色如下：**
 
