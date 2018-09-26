@@ -129,6 +129,9 @@ redis即使在单线程下，其执行速度仍然快，归结于以下几点：
 ```
 set key value [ex seconds] [px milliseconds] [nx|xx]
 ```
+ex seconds：为键设置秒级过期时间
+
+px milliseconds：为键设置毫秒级过期时间
 
 nx：键必须不存在，才可以设置成功，用于添加
 
