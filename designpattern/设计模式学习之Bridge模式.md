@@ -173,7 +173,7 @@ public class BridgeTest {
 
 **Bridge模式的类关系图如下：**
 
-![](C:\Users\Administrator\Desktop\ZooKeeper学习\桥接模式类关系图.png)
+![](../pictures/桥接模式类关系图.png)
 
 # 四、Bridge模式的特点
 
