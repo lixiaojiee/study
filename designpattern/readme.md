@@ -28,7 +28,7 @@
 - Memento模式
 - Observer模式
 - State模式
-- Strategy模式
+- [Strategy模式](./设计模式学习之Strategy模式.md)
 - [Template Method模式](./设计模式学习之模板方法模式.md)
 - Visitor模式
 
