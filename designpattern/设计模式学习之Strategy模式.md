@@ -54,7 +54,7 @@ public class Hand {
 }
 ```
 
-**Strategy代码：**Strategy接口是策略的抽象
+**Strategy代码：** Strategy接口是策略的抽象
 
 ```java
 package com.ateacer.study.designpattern.strategy;
@@ -67,7 +67,7 @@ public interface Strategy {
 }
 ```
 
-**WinningStrategy代码：**该类是Strategy的一种具体实现
+**WinningStrategy代码：** 该类是Strategy的一种具体实现
 
 ```java
 package com.ateacer.study.designpattern.strategy;
@@ -100,7 +100,7 @@ public class WinningStrategy implements Strategy {
 }
 ```
 
-**ProbStrategy代码：**该类也是Strategy的一种具体实现
+**ProbStrategy代码：** 该类也是Strategy的一种具体实现
 
 ```java
 package com.ateacer.study.designpattern.strategy;
@@ -163,7 +163,7 @@ public class ProbStrategy implements Strategy {
 }
 ```
 
-**Player类：**该类可以选择具体的策略
+**Player类：** 该类可以选择具体的策略
 
 ```java
 package com.ateacer.study.designpattern.strategy;
