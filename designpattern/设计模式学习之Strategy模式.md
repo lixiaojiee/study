@@ -234,7 +234,7 @@ public class Player {
 
 **Strategy模式的类图关系如下：**
 
-![](C:\Users\Administrator\Desktop\ZooKeeper学习\Strategy模式类关系图.png)
+![](../pictures/Strategy模式类关系图.png)
 
 # 三、Strategy模式的特点
 
