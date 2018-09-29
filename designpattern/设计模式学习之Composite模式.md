@@ -140,7 +140,7 @@ public class FileTreatMentException extends RuntimeException {
 
 **其类结构图如下所示:**
 
-![](C:\Users\Administrator\Desktop\ZooKeeper学习\Composite模式类关系图.png)
+![](../pictures/Composite模式类关系图.png)
 
 # 四、Composite模式的特点
 
