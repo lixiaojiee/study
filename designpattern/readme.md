@@ -12,7 +12,7 @@
 
 - [Adaptor模式](./设计模式学习之Adapter模式.md)
 - [Bridge模式](./设计模式学习之Bridge模式.md)
-- Composite模式
+- [Composite模式](./设计模式学习之Composite模式.md)
 - Decorator模式
 - Facade模式
 - Flyweight模式
