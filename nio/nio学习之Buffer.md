@@ -21,7 +21,7 @@
 
 这四个技术点之间的值的大小关系如下：
 
-​							$0<=mark<=position<=limit<=capacity$	
+          						$0<=mark<=position<=limit<=capacity$	
 
 ## 1、capacity
 
