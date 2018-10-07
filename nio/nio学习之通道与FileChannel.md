@@ -13,7 +13,7 @@ Channel主要有以下几个实现：
 | ByteChannel             | 其是ReadableByteChannel和WritableByteChannel的规范，支持双向操作，既支持读，也支持写 |
 | SeekableByteChannel     | 其主要作用是在字节通道中维护position，以及允许position发生变化 |
 | NetworkChannel          | 使通道与Socket进行关联，使通道中的数据能在Socket技术上进行传输 |
-| MulticastChannel        | 使通道支持Internet Protocol（IP）多播^注1^                   |
+| MulticastChannel        | 使通道支持Internet Protocol（IP）多播 ^注1^                  |
 | InterruptibleChannel    | 使通道能以异步的方式进行关闭与中断                           |
 
-**注1：**IP多播就是将多个主机地址进行打包，形成一个组，然后将IP报文向这个组进行发送，也就相当于同时向多个主机传输数据
+**注1：** IP多播就是将多个主机地址进行打包，形成一个组，然后将IP报文向这个组进行发送，也就相当于同时向多个主机传输数据
