@@ -157,7 +157,7 @@ public class BridgeTest {
 
 - **Abstraction（抽象化）**
 
-  该角色位于“类的功能层次结构”的 嘴上层，它使用Implemator角色的方法定义了基本的功能。该角色保存了Implemetor角色的实例，在上述程序中为`Display`类
+  该角色位于“类的功能层次结构”的最上层，它使用Implemator角色的方法定义了基本的功能。该角色保存了Implemetor角色的实例，在上述程序中为`Display`类
 
 - **RefinedAbstraction（改善后的抽象化）**
 
