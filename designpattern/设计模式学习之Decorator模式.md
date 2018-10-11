@@ -200,7 +200,7 @@ Hello,world.
 
 **装饰者模式的类图结构如下:**
 
-![](C:\Users\Administrator\Desktop\ZooKeeper学习\Decorator模式类关系图.png)
+![](../pictures/Decorator模式类关系图.png)
 
 
 
