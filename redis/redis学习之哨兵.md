@@ -1,8 +1,8 @@
 #  一、 Redis Sentinel的高可用性
 
-当主节点出现故障时，Redis Sentinel能自动完成故障发现和故障转移，并通知应用方，从而实现真正的高可用.
+当主节点出现故障时，Redis Sentinel能自动完成**故障发现**和**故障转移**，并通知应用方，从而实现真正的高可用.
 
-Redis Sentinel是一个分布式架构，其中包含若干个Sentinel节点和Redis数据节点，每个Sentinel节点会对数据节点和其余的Sentinel节点进行监控，当它发现节点不可用时，会对节点做下线标示。如果被标识的是主节点，他还会和其他Sentinel节点进行协商，当大多数Sentinel节点都认为主节点不可达时，它们会选举出一个Sentinel节点来完成自动故障转移工作，同时会将这个变化实时通知给Redis应用方。
+Redis Sentinel是一个分布式架构，其中包含若干个Sentinel节点和Redis数据节点，每个Sentinel节点会对数据节点和其余的Sentinel节点进行监控，当它发现节点不可用时，会对节点做下线标识。如果被标识的是主节点，他还会和其他Sentinel节点进行协商，当大多数Sentinel节点都认为主节点不可达时，它们会选举出一个Sentinel节点来完成自动故障转移工作，同时会将这个变化实时通知给Redis应用方。
 
 Redis Sentinel进行故障转移的步骤如下：
 
@@ -32,7 +32,7 @@ Sentinel的作用就是实现了第4步操作的自动化
 
 3、**主节点故障转移**：实现从节点晋升为主节点并维护后续正确的主从关系
 
-4、**配置提供者**：在Redis Sentinel结构中，客户端在初始化的时候连接的是Sentinel节点结合，从中获取主节点信息
+4、**配置提供者**：在Redis Sentinel结构中，客户端在初始化的时候连接的是Sentinel节点集合，从中获取主节点信息
 
 Redis Sentinel节点集合是由多个Sentinel节点组成，这样有两个好处：
 
@@ -48,9 +48,9 @@ Redis Sentinel节点集合是由多个Sentinel节点组成，这样有两个好�
 sentinel monitor <master-name> <ip> <port> <quorum>
 ```
 
-该配置说明了Sentinel节点要监控的是一个名字叫<master-name>，ip地址和端口为<ip> <port>的主节点。<quorum>代表要判定主节点最终不可达所需要的票数。但实际上Sentinel节点会对所有的节点进行监控，但是在Sentinel节点的配置中没有看到有关从节点和其余Sentinel节点的配置，那是因为Sentinel节点会从主节点中获取有关从节点以及其余Sentinel节点的相关信息
+该配置说明了Sentinel节点要监控的是一个名字叫< master-name >，ip地址和端口为< ip > < port >的主节点。< quorum >代表要判定主节点最终不可达所需要的票数。但实际上Sentinel节点会对所有的节点进行监控，但是在Sentinel节点的配置中没有看到有关从节点和其余Sentinel节点的配置，那是因为Sentinel节点会从主节点中获取有关从节点以及其余Sentinel节点的相关信息
 
-<quorum>参数用于故障发现和判定，如将quorum配置为2，代表至少有2个Sentinel节点认为主节点不可达，那么这个不可达的判定才是客观的。一般建议将其设置为Sentinel节点的一半加1，同时<quorum>海域Sentinel节点的领导者选举有关，至少要有`max(quorum,num(sentinels)/2+1)`个Sentinel节点参与选举，才能选出领导者Sentinel，从而完成故障转移
+< quorum >参数用于故障发现和判定，如将quorum配置为2，代表至少有2个Sentinel节点认为主节点不可达，那么这个不可达的判定才是客观的。一般建议将其**设置为Sentinel节点的一半加1**，同时< quorum >还与Sentinel节点的领导者选举有关，至少要有`max(quorum,num(sentinels)/2+1)`个Sentinel节点参与选举，才能选出领导者Sentinel，从而完成故障转移
 
 2、sentinel down-after-milliseconds
 
@@ -58,7 +58,7 @@ sentinel monitor <master-name> <ip> <port> <quorum>
 sentinel down-after-milliseconds <master-name> <times>
 ```
 
- 每个Sentinel节点都要通过定期发送ping命令来判断redis数据节点和其余Sentinel节点是否可达，如果超过了down-after-milliseconds配置的时间且没有有效的回复，则判定节点不可达，<times>单位为毫秒，就是超时时间。
+ 每个Sentinel节点都要通过定期发送ping命令来判断redis数据节点和其余Sentinel节点是否可达，如果超过了down-after-milliseconds配置的时间且没有有效的回复，则判定节点不可达，< times >单位为毫秒，就是超时时间。
 
 3、sentinel parallel-syncs
 
@@ -66,7 +66,7 @@ sentinel down-after-milliseconds <master-name> <times>
 sentinel parallel-syncs <master-name> <nums>
 ```
 
-当Sentinel节点集合对主节点故障判定达成一致时，Sentinel领导者节点会做故障转移操作，选出新的主节点，原来的从节点会向新的主节点发起复制操作，`parallel-syncs`就是用来限制在一次故障转移之后，每次向新的主节点同时发起复制操作，parallel-syncs=3表示三个从节点同时向主节点发起复制操作，parallel-syncs=1表示一个从节点同时向主节点发起复制操作，这个时候会发起轮询复制
+当Sentinel节点集合对主节点故障判定达成一致时，Sentinel领导者节点会做故障转移操作，选出新的主节点，原来的从节点会向新的主节点发起复制操作，`parallel-syncs`就是用来限制在一次故障转移之后，每次向新的主节点同时发起复制操作的从节点数，parallel-syncs=3表示三个从节点同时向主节点发起复制操作，parallel-syncs=1表示一个从节点同时向主节点发起复制操作，这个时候会发起轮询复制
 
 4、sentinel failover-timeout
 
