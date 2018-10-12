@@ -88,7 +88,7 @@ failover-timeout的作用具体体现在四个方面：
 
 1）如果Redis Sentinel对一个主节点故障转移失败，那么下次再对该主节点做故障转移的起始时间时failover-timeout的2倍
 
-2）在b阶段时，如果Sentinel节点向a阶段选出来的节点执行`slaveof no one`操作一只失败（例如该从节点此时出现故障），当过程超过failover-timeout时，则故障转移失败
+2）在b阶段时，如果Sentinel节点向a阶段选出来的节点执行`slaveof no one`操作一直失败（例如该从节点此时出现故障），当过程超过failover-timeout时，则故障转移失败
 
 3）在b阶段如果执行成功，Sentinel节点还会执行info命令确认a阶段选出来的节点确实晋升为主节点，如果此过程执行时间超过failover-timeout时，则故障转移失败
 
