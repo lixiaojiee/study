@@ -293,3 +293,15 @@ Chroot允许每个客户端为自己设置一个命名空间。如果一个ZooKe
 ### 2)HostProvider：地址列表管理器
 
 ZooKeeper的服务器地址保存在一个List集合中，并且这些地址顺序被随机打散，然后将这些地址拼装成一个环形的循环队列，这个环形队列包含两个游标：currentIndex和lastIndex。currentIndex标识循环队列中当前遍历到的那个元素的位置，lastIndex则标识当前正在使用的服务器地址位置。初始化的时候，currentIndex和lastIndex的值都为-1。在每次尝试获取一个服务器地址的时候，都会首先将currentIndex游标向前移动1位，如果发现游标移动超过了整个地址列表的长度，那么就重置未为0，回到开始的位置重新开始，这样一来，就实现了循环队列
+
+## 3、zookeeper中的各服务器角色
+
+zookeeper集群中，分别有Leader、Follower和Observer三种类型的服务器角色
+
+### 1）Leader
+
+Leader服务器是整个zookeeper的集群工作机制的核心，其主要工作有以下两个：
+
+- 事物请求的唯一调度和处理者，保证集群事物处理的顺序性
+- 集群内部各服务器的调度者
+
