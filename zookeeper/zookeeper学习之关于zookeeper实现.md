@@ -321,3 +321,25 @@ Leader服务器是整个zookeeper的集群工作机制的核心，其主要工�
 
 Observer时zookeeper自3.0.0版本开始运入的一个全新的服务器角色。从字面意思看，该服务器充当了一个观察者的角色——其观察zookeeper集群的最新状态变化并将这些状体的变更同步过来。Observer服务器在工作原理上和Follower基本时一致的，对于非事物请求，都可以进行独立处理，而对于事物请求，则会转发给Leader服务器进行处理。**其和Follower服务器的唯一区别在于，Observer不参与任何形式的投票，包括事物请求Proposal的投票和Leader选举投票。简单地讲，Observer服务器只提供非事物服务，通常用于在不影响集群事物处理能力的前提下提升集群的非事物处理能力**
 
+## 4、zookeeper集群间通信
+
+学了这么久zookeeper，了解了很多内部处理机制以及工作原理，但是集群间是根据什么规则通信的还是比较好奇，现在开始学习这块。
+
+zookeeper的消息类型大体上可以分为四类：**数据同步型、服务器初始化型、请求处理型和会话管理型**
+
+### 1）数据同步型
+
+数据同步型消息是指在Learner和Leader扶额 u 为 i进行数据同步的时候，网络通信所用到的消息，通常有DIFF、TRUNC、SNAP和UPTODATE四种
+
+### 2）服务器初始化型
+
+服务器初始化型消息是指在整个集群或是某些新机器初始化的时候，Leader和Learner之间相互通信所使用的消息类型，常见的有OBSERVERINFO、FOLLOWERINFO、LEADERINFO、ACKEPOCH和NEWLEADER五种
+
+### 3）请求处理型
+
+请求处理型消息是指在进行请求处理的过程中，Leader和Learner服务器之间互相通信所使用的消息常见的有REQUEST、PROPOSAL、ACK、COMMIT、INFORM和SYNC六种
+
+### 4）会话管理型
+
+会话管理型消息是指zookeeper在进行会话管理的过程中，和Leader扶额 u 为 i之间相互通信所使用的消息，常见的有PING和REVALIDATE两种
+
