@@ -30,5 +30,5 @@
 - State模式
 - [Strategy模式](./设计模式学习之Strategy模式.md)
 - [Template Method模式](./设计模式学习之模板方法模式.md)
-- Visitor模式
+- [Visitor模式](./设计模式学习之Visitor模式.md)
 
