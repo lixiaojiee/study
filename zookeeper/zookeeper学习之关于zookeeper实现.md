@@ -343,3 +343,11 @@ zookeeper的消息类型大体上可以分为四类：**数据同步型、服务
 
 会话管理型消息是指zookeeper在进行会话管理的过程中，和Leader扶额 u 为 i之间相互通信所使用的消息，常见的有PING和REVALIDATE两种
 
+**注：什么是提案？**
+
+所谓提案，是zookeeper中针对事物请求所展开的一个投票流程中对事物操作的包装
+
+**zookeeper中的Proposal流程：**
+
+zookeeper的实现中，每一个事物请求都需要及群众过半及其投票认可才能被真正应用到zookeeper的内存数据库中去，**这个投票与统计过程被称为“Proposal流程”**
+
