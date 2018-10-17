@@ -201,4 +201,4 @@ public class ListVisitor extends Visitor {
 
 其类关系图如下：
 
-![](C:\Users\Administrator\Desktop\ZooKeeper学习\Vistor模式类关系图.png)
+![](../pictures/ZooKeeper学习\Vistor模式类关系图.png)
