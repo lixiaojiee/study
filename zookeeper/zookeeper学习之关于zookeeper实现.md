@@ -76,7 +76,7 @@ zookeeper中的版本概念和传统意义上的软件版本有很大的区别�
 **关于回调：**
 
 - WatchedEvent：是一个逻辑事件，用于服务端和客户端程序执行过程中所需的逻辑对象
-- WatcherEvent：其和WatchedEvent表示的是统一个事物，都是对一个服务端事件的封装，但其因为实现了序列化接口，因此可以用于网络传输
+- WatcherEvent：其和WatchedEvent表示的是同一个事物，都是对一个服务端事件的封装，但其因为实现了序列化接口，因此可以用于网络传输
 
 WatcherEvent存在的原因：服务端在生成WatchedEvent事件之后，会调用getWrapper方法将自己包装成一个可序列化的WatcherEvent事件，以便通过网络传输到客户端。客户端在接收到服务端这个事件对象后，首先会将WatcherEvent事件还原成一个WatchedEvent事件，并传递给process方法处理，回调方法process根据入参就能够解析出完整的服务端事件了
 
