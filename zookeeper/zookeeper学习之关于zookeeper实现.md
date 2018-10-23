@@ -375,10 +375,58 @@ GetData请求为非事物处理请求
 
 zookeeper的数据模型是一棵树，而从使用角度来看，zookeeper就像一个内存数据库一样。在合格内存数据库中，存储了整棵树的内容，包括所有的节点路径、节点数据及其ACL信息等，zookeeper会定时讲这个数据存储到磁盘上
 
-### 1)DataTree
+### 1）DataTree
 
 DataTree是zookeeper内存数据存储的核心，是一个“树”的数据结构名代表了内存中的一份完整的数据。DataTree不包含任何与网络、客户端连接以及请求处理等相关的业务逻辑，是一个非常独立的zookeeper组建
 
-### 2)DataNode
+### 2）DataNode
 
-**DataNode是数据存储的最小单元**，DataNode内部除了保存了节点的数据内容(data[])、ACL列表(acl)
+**DataNode是数据存储的最小单元**，DataNode内部除了保存了节点的数据内容(data[])、ACL列表(acl)和节点状态(stat)之外，正如最基本的数据结构中对树的描述，还记录了父节点(parent)的引用和字节点列表(children)两个属性。
+
+### 3）nodes
+
+DataTree用于存储所有zookeeper节点的路径，数据内容及ACL信息等，底层数据结构其实是一个典型的ConcurrentHadhMap键值对结构，在这个map中，存放了zookeeper服务器上所有的额数据节点，可以说，对于zookeeper数据的所有操作，底层都是对这个map结构的操作。nodes以数据节点的路径(path)为key，value则是节点的数据内容DataNode。另外，对于临时节点，为了方便实时访问和及时清理，DataTree中还单独讲临时节点保存起来
+
+### 4）ZKDatabase
+
+ZKDatabase，正如其名字一样，是zookeeper的内存数据库，负责管理zookeeper的所有绘画、DataTree存储和事物日志。ZKDatabase会定时向磁盘dump快照数据，同时在zookeeper服务器启动的时候，会通过磁盘上的事物日志和快照数据文件恢复成一个完整的内存数据库
+
+## 2事物日志
+
+### 1）文件存储
+
+在部署zookeeper集群的时候，需要配置一个目录：dataDir。这个目录是zookeeper中默认用于存储事物日志文件的，其实在zookeeper中可以为事物日志单独分配一个文件存储目录：dataLogDir
+
+因为zookeeper的日志文件是二进制的，直接用文本工具打开根本看不明白里面都是什么意思，所以，zookeeper提供了一套建议的事物日志格式化工具LogFormatter，用于将这个磨人的事物日志文件转换成可视化的事物操作日志，使用方法如下：
+
+```
+java LogFormatter log.300000001
+```
+
+### 2）日志写入
+
+zookeeper中事物日志的写入可以分为以下6个步骤：
+
+a、确定是否有事物日志可写
+
+如果是zookeeper服务器第一次启动完成需要进行第一次事物地址的写入，或者是上一个事物日志写满的时候，需要使用与该事物草足关联的ZXID作为后缀创建一个事物日志文件
+
+b、确定事物日志文件是否需要扩容
+
+zookeeper的事物日志文件会采取“磁盘空间预分配”的策略。当检测到当前事物日志文件剩余空间不足4096B(4K)时，就会开始进行文件空间扩容。扩容原理就是在现有文件大小的基础上，将文件大小增加65536B(64KB)，然后使用“0”(\0)填充这些被扩容文件的空间。
+
+c、事物序列化
+
+d、生成Checksum
+
+为了保证事物日志文件的完整性和数据的准确性，zookeeper在将事物日志写入文件前，会根据步骤3中序列化产生的字节数组来计算Checksum。zookeeper磨人使用Adler32算法来计算Checksum值
+
+e、写入事物日志文件流将序列化后的事物头、事物体及Checksum值写入到文件流中去，此时由于zookeeper使用的是BufferedOutputStream，因此写入的数据并非真正被写入磁盘文件上
+
+f、事物日志刷入磁盘
+
+### 3)日志截断
+
+在zookeeper运行过程中，可能会出现这样的情况，非Leader及其上记录的事物ID比Leader服务器大，那么这个机器就处于一个非法的运行状态。zookeeper遵循一个原则：只要集群中存在Leader，那么所有汲取都必须与 该leader的数据保持同步
+
+因此，一旦某台机器碰到上述情况，Leader会发送TRUNC命令给这个机器，要求其进行日志截断。Learner服务器在接收到该命令后，就会删除所有包含或大于从服务器的ZXID的事物日志文件
