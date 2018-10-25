@@ -124,7 +124,7 @@ Super模式，顾名思义就是超级用户的意思，是一种特殊的Digest
 
 | 权限模式 | 授权对象                                         |
 | -------- | ------------------------------------------------ |
-| IP       | 通产是一个IP地址或IP段                           |
+| IP       | 通常是一个IP地址或IP段                           |
 | Digest   | 自定义，通常是"username:BASE61(SHA-1(password))" |
 | World    | 只有一个ID：“anyone”                             |
 | Super    | 与Digest模式一致                                 |
