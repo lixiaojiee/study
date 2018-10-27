@@ -471,4 +471,63 @@ PlayBackListener监听器主要用来接收事物应用过程中的回调。如�
 
 ### 7）获取最新的ZXID
 
-//TODO
+### 8）处理事物日志
+
+此时，zookeeper服务器内存中已经有了一份近似全量的数据了，现在开始就要通过事物日志来更新增量数据了
+
+### 9）获取所有zxid_for_snap之后提交的事物
+
+到这里，我们已经获取到了快照数据的最新ZXID
+
+### 10）事物应用
+
+获取到所有ZXID大于zxid_for_snap的事物后，将其逐个应用到之前给予快照数据文件恢复出来的DataTree和sessionsWithTimeouts中去
+
+### 11）获取最新的ZXID
+
+待所有事物都被完整地应用到内存数据库中之后，基本上也就完成了数据的初始化过程，此时再次获取一个ZXID，用来标识上次服务器正常运行时提交的最大事物ID
+
+### 12）校验epoch
+
+epoch是zookeeper中一个非常特别的变量，在zookeeper中，epoch标识当前Leader的生命周期。每次选举产生一个新的Leader服务器之后，都会生成一个新的epoch。在运行期间集群中机器相互通信的过程中，都会带上这个epoch以确保彼此在同一个Leader周期中。
+
+在完成数据加载后，zookeeper会从步骤11中确定的ZXID中解析出的事物处理的Leader周期：currentEpoch和acceptedEpoch文件中读取出上次记录的最新的epoch值，进行校验
+
+## 5、数据同步
+
+**什么时候开始进行数据同步：**
+
+zookeeper在整个集群完成Leader选举之后，Learner会向Leader服务器进行注册。当Learner服务器向Leader完成注册后，就进入数据同步环节。简单地讲，数据同步过程就是Leader服务器将那些没有在Learner服务器上提交过的事物请求同步给Learner服务器，大体过程如下：
+
+### 1）获取Learner状态
+
+在注册Learner的最后阶段，Learner服务器会发送给Leader服务器一个ACKEPOCH数据包，Leader会从这个数据包中解析出该Learner的currentEpoch和lastZxid
+
+### 2）数据同步初始化
+
+在开始数据同步之前，Leader服务器会进行数据同步初始化，首先会从zookeeper的内存数据库中提取出事物请求对应的提议缓存队列proposals，同时完成以下三个ZXID值的初始化：
+
+- **peerLastZxid：**该Leader服务器最后处理的ZXID
+- **minCommittedLog：**Leader服务器提议缓存队列committedLog中的最小ZXID
+- **maxCommittedLog：**Leader服务器提议缓存队列committedLog中的最大ZXID
+
+zookeeper集群数据同步通常分为四类，分别是：
+
+- 直接差异化同步（DIFF同步）
+- 先回滚再差异化同步（TRUNC+DIFF同步）
+- 仅回滚同步（TRUNC同步）
+- 全量同步（SNAP同步）
+
+在初始化阶段，Leader扶额 u 为 i会优先初始化以全量同步方式来同步数据——当然，这并非是最终的数据同步方式，在以下的步骤中，会根据Leader和Learner服务器之间的数据差异情况来决定最终的同步方式，下面，开始介绍这几种同步方式：
+
+#### a、直接差异化同步（SNAP同步）
+
+**同步场景：**peerLastZxid介于minCommittedLog和maxCommittedLog之间
+
+leader服务器会首先向这个Learner服务器发送一个DIFF指令，用于通知Learner“进入差异化数据同步阶段，Leader服务器即将把一些proposal同步给自己”。在实际的proposal同步的过程中，针对每个proposal，Leader服务器都会发送两个数据包来完成，分别是PROPOSAL内容数据包和COMMIT指令数据包——这和zookeeper运行时Leader和Follower之间的事物请求的提交过程是一致的。Leader在发送完差异数据后，会立即发送一个NEWLEADER指令，用于通知learner，已经将提议缓存队列中的proposal都同步给自己了，这个时候，Learner会发送一个ACK指令给Leader，表明自己也确实完成了对提议缓存队列中proposal的同步。
+
+Leader在接收到Learner的这个ACK消息一口，就认为当前Learner已经完成了谁同步，同时进入“过半策略”——Leader会和其他Learner进行上述同样的数据同步流程，直到集群中有过半的Learner机器相应了Leader这个ACK消息。一旦满足“过半策略”，Leader服务器就会向所有已经完成数据同步的Learner发送i 个UPTODATE指令，用来通知Learner可以静完成了数据同步，同时集群中已经有过半机器完成了数据同步，集群已经句诶了对俄爱服务的能力了
+
+#### b、先回滚再差异化同步（TRUNC+DIFF同步）
+
+//todo
