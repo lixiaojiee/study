@@ -507,9 +507,9 @@ zookeeper在整个集群完成Leader选举之后，Learner会向Leader服务器�
 
 在开始数据同步之前，Leader服务器会进行数据同步初始化，首先会从zookeeper的内存数据库中提取出事物请求对应的提议缓存队列proposals，同时完成以下三个ZXID值的初始化：
 
-- ** peerLastZxid：**该Leader服务器最后处理的ZXID
-- ** minCommittedLog：**Leader服务器提议缓存队列committedLog中的最小ZXID
-- ** maxCommittedLog：**Leader服务器提议缓存队列committedLog中的最大ZXID
+- **peerLastZxid：** 该Leader服务器最后处理的ZXID
+- **minCommittedLog：** Leader服务器提议缓存队列committedLog中的最小ZXID
+- **maxCommittedLog：** Leader服务器提议缓存队列committedLog中的最大ZXID
 
 zookeeper集群数据同步通常分为四类，分别是：
 
