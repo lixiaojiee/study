@@ -202,7 +202,7 @@ zookeeper的客户端主要由以下几个核心组件组成
 - 设置ZooKeeper服务器地址列表
 - 创建ClientCnxn
 
-如果再ZooKeeper的构造方法中传入了一个Watcher对象的话，那么ZooKeeper就会将这个Watcher对象保存在ZKWatchManager的defaultWatcher中，作为整个客户端回话期间的默认Watcher
+如果在ZooKeeper的构造方法中传入了一个Watcher对象的话，那么ZooKeeper就会将这个Watcher对象保存在ZKWatchManager的defaultWatcher中，作为整个客户端会话期间的默认Watcher
 
 ## 1、一次会话的创建过程
 
