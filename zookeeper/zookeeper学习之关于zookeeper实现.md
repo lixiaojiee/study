@@ -507,9 +507,9 @@ zookeeper在整个集群完成Leader选举之后，Learner会向Leader服务器�
 
 在开始数据同步之前，Leader服务器会进行数据同步初始化，首先会从zookeeper的内存数据库中提取出事物请求对应的提议缓存队列proposals，同时完成以下三个ZXID值的初始化：
 
-- **peerLastZxid：**该Leader服务器最后处理的ZXID
-- **minCommittedLog：**Leader服务器提议缓存队列committedLog中的最小ZXID
-- **maxCommittedLog：**Leader服务器提议缓存队列committedLog中的最大ZXID
+- ** peerLastZxid：**该Leader服务器最后处理的ZXID
+- ** minCommittedLog：**Leader服务器提议缓存队列committedLog中的最小ZXID
+- ** maxCommittedLog：**Leader服务器提议缓存队列committedLog中的最大ZXID
 
 zookeeper集群数据同步通常分为四类，分别是：
 
@@ -522,7 +522,7 @@ zookeeper集群数据同步通常分为四类，分别是：
 
 #### a、直接差异化同步（SNAP同步）
 
-**同步场景：**peerLastZxid介于minCommittedLog和maxCommittedLog之间
+**同步场景：** peerLastZxid介于minCommittedLog和maxCommittedLog之间
 
 leader服务器会首先向这个Learner服务器发送一个DIFF指令，用于通知Learner“进入差异化数据同步阶段，Leader服务器即将把一些proposal同步给自己”。在实际的proposal同步的过程中，针对每个proposal，Leader服务器都会发送两个数据包来完成，分别是PROPOSAL内容数据包和COMMIT指令数据包——这和zookeeper运行时Leader和Follower之间的事物请求的提交过程是一致的。Leader在发送完差异数据后，会立即发送一个NEWLEADER指令，用于通知learner，已经将提议缓存队列中的proposal都同步给自己了，这个时候，Learner会发送一个ACK指令给Leader，表明自己也确实完成了对提议缓存队列中proposal的同步。
 
