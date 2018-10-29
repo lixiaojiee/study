@@ -530,4 +530,26 @@ Leader在接收到Learner的这个ACK消息一口，就认为当前Learner已经
 
 #### b、先回滚再差异化同步（TRUNC+DIFF同步）
 
-//todo
+**同步场景：** 直接差异化同步的场景中，会有一种特别罕见但是确实存在的场景：设有A、B、C三台机器，假设某一时刻B是Leader服务器，此时的Leader_Epoch为5，同时当前已经被集群中绝大部分机器都提交的ZXID包括：：0x500000001和0x500000002.此时，Leader正要处理ZXID：0x500000003，并且已经将该事物写入到了Leader本地的事物日志中去——就在Leader恰好要将该Proposal发送给其他Follower机器进行投票的时候，Leader服务器挂了，Proposal没有被同步出去。此时zookeeper集群会进行新一轮的Leader选举，假设此次选举产生的新的Leader时A，同时Leader_Epoch变更为6，之后A和C两台服务器继续对外进行服务，又提交了0x600000001和0x600000002两个事物，此时服务器B再次启动，并开始数据同步。
+
+简单地讲，上面这个场景就是Leader服务器再已经将事物记录到本地事物日志中，但是没有成功发起Proposal流程的时候就挂了。在这个特殊场景中，我们看到，peerLastZxid、minCommittedLog和maxCommitedLog的值分别是0x500000003、0x500000001、0x600000002，显然，peerLastZxid介于minCommittedLog和maxCommitedLog之间。
+
+对于这个特殊场景，就使用先回滚再差异化同步的方式。
+
+**当Leader服务器发现某个Learner包含了一条自己没有的事物记录，那么就需要让该Learner进行事物回滚——回滚到Leader服务器上存在的，同时也是最接近于peerLastZxid的ZXID。**
+
+其步骤和a是一样的。
+
+#### c、仅回滚同步（TRUNC同步）
+
+**同步场景：** peerLastZxid大于maxCommittedLog
+
+Leader会要求Learner回滚到ZXID值为maxCommittedLog对应的事物操作
+
+#### d、全量同步（ANAP同步）
+
+**同步场景1:** peerLastZxid小于minCommittedLog
+
+**同步场景2:** Leader服务器上没有提议缓存队列，peerLastZxid不等于lastProcessedZxid（Leader服务器数据恢复后得到的最大ZXID）
+
+所谓全量同步，就是Leader服务器将本机上的全量内存数据都同步给Learner。Leader服务器首先向Learner发送一个SNAP指令，通知Learner即将进行全量数据同步，随后，Leader会送内存数据库中获取到全量的数据节点和会话超市时间记录器，将它们序列化后传输给Learner。Learner服务器接收到该全量数据后，会对其反序列化后再入到内存数据库中
