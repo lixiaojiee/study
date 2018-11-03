@@ -212,7 +212,7 @@ zookeeper的客户端主要由以下几个核心组件组成
 
 在zookeeper的初始化过程中，会创建一个客户端的Watcher管理器：ClientWatchManager
 
-**2)设置回话默认Watcher**
+**2)设置会话默认Watcher**
 
 如果在构造方法中传入了一个Watcher对象，那么客户端会将这个对象作为默认Watcher保存在ClientWatchManager中
 
