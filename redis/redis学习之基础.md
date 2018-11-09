@@ -807,7 +807,7 @@ iii、migrate
 migrate host port key|"" destination-db timeout [copy] [replace] [keys key [key1 ...]]
 ```
 
-migreate命令也是用于在redis实例间进行数据迁移的，实际上migrate命令就是将dump+restore+del三个命令进行组合，从而简化了操作流程。migrate命令具有原子性。
+migrate命令也是用于在redis实例间进行数据迁移的，实际上migrate命令就是将dump+restore+del三个命令进行组合，从而简化了操作流程。migrate命令具有原子性。
 
 该命令和dump+restore的区别：
 
