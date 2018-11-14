@@ -8,9 +8,9 @@
 
 ## 2、ConcurrentHashMap的结构
 
-ConcurrentHashMap是由Segment数组结构和HashEntry数组结构组成。Segment是一种可重入锁，在ConcurrentHashMap里扮演锁的角色；HashEntry则是存储键值对数据。每个Segment守护着一个HashEntry数组里的元素，当对HashEntry数组的数据进行修改时，必须收看获得与它对应的Segment锁。
+ConcurrentHashMap是由Segment数组结构和HashEntry数组结构组成。Segment是一种可重入锁，在ConcurrentHashMap里扮演锁的角色；HashEntry则是存储键值对数据。每个Segment守护着一个HashEntry数组里的元素，当对HashEntry数组的数据进行修改时，必须首先获得与它对应的Segment锁。
 
-concurrentHashMap中相关参数：
+ConcurrentHashMap中相关参数：
 
 segmentShift：segmentShift用于定位参与散列运算的位数，segmentShift等于32减sshift，其中sshift时ssize向左移动的次数
 
