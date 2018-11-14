@@ -36,7 +36,7 @@ showlog get [n]
 
 慢查询日志的组成：
 
-a、标示id
+a、标识id
 
 b、发生的时间戳
 
