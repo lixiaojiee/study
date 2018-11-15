@@ -12,7 +12,7 @@ ConcurrentHashMap是由Segment数组结构和HashEntry数组结构组成。Segme
 
 ConcurrentHashMap中相关参数：
 
-segmentShift：segmentShift用于定位参与散列运算的位数，segmentShift等于32减sshift，其中sshift时ssize向左移动的次数
+segmentShift：segmentShift用于定位参与散列运算的位数，segmentShift等于32减sshift，其中sshift是ssize向左移动的次数
 
 segmentMask：segmentMask是散列运算的掩码，等于ssize-1，其中ssize是Segment数组的大小
 
@@ -22,7 +22,7 @@ segmentMask：segmentMask是散列运算的掩码，等于ssize-1，其中ssize�
 
 CHM的get操作的高效之处在于整个get过程不需要加锁，除非读到的值是空才会加锁重读
 
-那么CHM的get操作是如何做到不加锁的呢？原因是它的get方法将要使用的共享变量都定义成volatile类型，如用于 统计当前Segment大小的count字段和用于存储值的HashEntry的value，定义成volatile的共享变量，能够在线程之间保持可见性能够被多线程同时读，并且保证不会读到过期的值，但是只能被单线程写，在get操作离之需要读不需要写共享变量count和value，所以可以不用加锁。之所以不会读到过期的值，是因为根据JMM的happens-before原则，对volatile字段的写入操作先于读操作，即使两个线程同时修改和获取volatile变量，get操作也能拿到最新的值，这是用volatile替换锁的典型场景。
+那么CHM的get操作是如何做到不加锁的呢？原因是它的get方法将要使用的共享变量都定义成volatile类型，如用于统计当前Segment大小的count字段和用于存储值的HashEntry的value，定义成volatile的共享变量，能够在线程之间保持可见性能够被多线程同时读，并且保证不会读到过期的值，但是只能被单线程写，在get操作里只需要读不需要写共享变量count和value，所以可以不用加锁。之所以不会读到过期的值，是因为根据JMM的happens-before原则，对volatile字段的写入操作先于读操作，即使两个线程同时修改和获取volatile变量，get操作也能拿到最新的值，这是用volatile替换锁的典型场景。
 
 ### 2）put操作
 
