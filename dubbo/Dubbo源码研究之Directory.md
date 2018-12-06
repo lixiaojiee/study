@@ -12,7 +12,13 @@ forbidden：
 
 RegistryDirectory中维护的Invokers，有两种来源，一种是在工程启动时加载的zookeeper本地缓存，另一种是zookeeper对应节点在发生变化的时候，通知给客户端的Notifier
 
-### RegistryDirectory接收zookeeper通知的处理过程
+## 1、RegistryDirectory
+
+### a、list过程
+
+
+
+### b、RegistryDirectory接收zookeeper通知的处理过程
 
 1. 从接收到的变化的URL中解析出protocol和category
 
@@ -25,7 +31,7 @@ RegistryDirectory中维护的Invokers，有两种来源，一种是在工程启�
 
 3. 将configuratorUrls中的URL转化成Configurator
 
-4. 将routerUrls中的URL转化成Router，并传到AbstractDirectory中，因为这里做了Router的路由操作，该操作是通过配置`runtime=true`来激活此步骤的，如果被激活，那么每次请求都会进行重新路由，这样会影响性能，**生产上不建议这么做** 
+4. 将routerUrls中的URL转化成Router，并传到AbstractDirectory中，因为这里做了Router的路由操作，该操作是通过配置`runtime=true`来激活此步骤的，如果被激活，那么每次请求都会进行多个路由器的路由操作，这样会影响性能，**生产上不建议这么做** 
 
 5. 刷新Invoker列表
 
@@ -72,3 +78,7 @@ RegistryDirectory中维护的Invokers，有两种来源，一种是在工程启�
       ​    ii、分别遍历新映射表和老映射表，如果发现老列表中的某Invoker不在新列表中，则将将其记录
 
       ​    iii、遍历ii步骤中的元素，将老列表中对应元素删除，并执行该Invoker的destroy方法
+
+## 2、StaticDirectory
+
+StatiDirectory就是维护了一份服务列表，运行时不会发生变化
