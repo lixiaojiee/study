@@ -79,6 +79,11 @@ RegistryDirectory中维护的Invokers，有两种来源，一种是在工程启�
 
       ​    iii、遍历ii步骤中的元素，将老列表中对应元素删除，并执行该Invoker的destroy方法
 
+      **RegistryDirectory在以下几个地方使用：**
+
+      - DubboRegistry的createRegistry方法
+      - RegistryProtocol的doRefer方法
+
 ## 2、StaticDirectory
 
 StatiDirectory就是维护了一份服务列表，运行时不会发生变化
