@@ -18,7 +18,7 @@ RegistryDirectory中维护的Invokers，有两种来源，一种是在工程启�
 
 
 
-### b、RegistryDirectory接收zookeeper通知的处理过程
+### b、RegistryDirectory接收注册中心通知的处理过程
 
 1. 从接收到的变化的URL中解析出protocol和category
 
