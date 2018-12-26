@@ -1,0 +1,3 @@
+DubboProtocol和RegistryProcotol在初始化的时候，都会被包上一层ProtocolListenerWrapper和ProtocolFilterWrapper
+
+FailoverCluster被MockClusterWrapper包着
