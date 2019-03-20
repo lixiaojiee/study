@@ -89,7 +89,7 @@ daemon线程需要在线程启动前设置，不能在启动线程后设置
 
 ## 4、Thread.join()的使用
 
-如果一个线程执行了Thread.join()语句，其含义是：当前线程A等待thread线程终止之后才从thread.join()返回。线程Thread除了提供join()方法之外，还提供了join(long millis)和joinjoin(long mills,int nanos)两个具备超时特性的方法。这两个方法表示，如果线程thread在给定的超时时间里没有终止，那么将会从该超时方法中返回。
+如果一个线程执行了Thread.join()语句，其含义是：当前线程A等待Thread线程终止之后才从Thread.join()返回。线程Thread除了提供join()方法之外，还提供了join(long millis)和join(long mills,int nanos)两个具备超时特性的方法。这两个方法表示，如果线程Thread在给定的超时时间里没有终止，那么将会从该超时方法中返回。
 
 ## 5、线程应用实例
 
