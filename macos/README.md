@@ -38,3 +38,8 @@ create database databasename;
 grant privileges/all/select/delete/create/update on 'tablename'@'localhost' to 'username';
 ```
 
+2、显示隐藏文件夹
+
+```
+command + shift + .
+```
