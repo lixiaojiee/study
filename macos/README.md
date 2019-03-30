@@ -20,6 +20,12 @@ brew install mysql
 brew services start mysql
 ```
 
+- 使用root用户登陆
+
+```
+ mysql -u root
+```
+
 - 创建用户
 
 ```
