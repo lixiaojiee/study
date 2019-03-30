@@ -35,7 +35,7 @@ create database databasename;
 - 授予权限给用户
 
 ```
-grant privileges/all/select/delete/create/update on 'tablename'@'localhost' to 'username';
+grant all/select/delete/create/update privileges on 'database.tablename'@'localhost' to 'username';
 ```
 
 3、显示隐藏文件夹
