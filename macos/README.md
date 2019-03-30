@@ -17,7 +17,7 @@ brew install mysql
 - 启动mysql服务
 
 ```
-brew service start mysql
+brew services start mysql
 ```
 
 - 创建用户
