@@ -397,7 +397,7 @@ ZKDatabase，正如其名字一样，是zookeeper的内存数据库，负责管�
 
 在部署zookeeper集群的时候，需要配置一个目录：dataDir。这个目录是zookeeper中默认用于存储事物日志文件的，其实在zookeeper中可以为事物日志单独分配一个文件存储目录：dataLogDir
 
-因为zookeeper的日志文件是二进制的，直接用文本工具打开根本看不明白里面都是什么意思，所以，zookeeper提供了一套建议的事物日志格式化工具LogFormatter，用于将这个磨人的事物日志文件转换成可视化的事物操作日志，使用方法如下：
+因为 zookeeper 的日志文件是二进制的，直接用文本工具打开根本看不明白里面都是什么意思，所以，zookeeper 提供了一套建议的事物日志格式化工具 LogFormatter，用于将这个默认的事物日志文件转换成可视化的事物操作日志，使用方法如下：
 
 ```
 java LogFormatter log.300000001
@@ -405,51 +405,51 @@ java LogFormatter log.300000001
 
 ### 2）日志写入
 
-zookeeper中事物日志的写入可以分为以下6个步骤：
+zookeeper 中事物日志的写入可以分为以下 6 个步骤：
 
 a、确定是否有事物日志可写
 
-如果是zookeeper服务器第一次启动完成需要进行第一次事物地址的写入，或者是上一个事物日志写满的时候，需要使用与该事物草足关联的ZXID作为后缀创建一个事物日志文件
+如果是 zookeeper 服务器第一次启动完成需要进行第一次事物地址的写入，或者是上一个事物日志写满的时候，需要使用与该事物关联的 ZXID 作为后缀创建一个事物日志文件
 
 b、确定事物日志文件是否需要扩容
 
-zookeeper的事物日志文件会采取“磁盘空间预分配”的策略。当检测到当前事物日志文件剩余空间不足4096B(4K)时，就会开始进行文件空间扩容。扩容原理就是在现有文件大小的基础上，将文件大小增加65536B(64KB)，然后使用“0”(\0)填充这些被扩容文件的空间。
+zookeeper 的事物日志文件会采取“磁盘空间预分配”的策略。当检测到当前事物日志文件剩余空间不足4096B(4K)时，就会开始进行文件空间扩容。扩容原理就是在现有文件大小的基础上，将文件大小增加 65536B(64KB)，然后使用 “0”(\0) 填充这些被扩容文件的空间
 
 c、事物序列化
 
-d、生成Checksum
+d、生成 Checksum
 
-为了保证事物日志文件的完整性和数据的准确性，zookeeper在将事物日志写入文件前，会根据步骤3中序列化产生的字节数组来计算Checksum。zookeeper磨人使用Adler32算法来计算Checksum值
+为了保证事物日志文件的完整性和数据的准确性，zookeeper 在将事物日志写入文件前，会根据步骤 c 中序列化产生的字节数组来计算 Checksum。zookeeper 默认使用 Adler32 算法来计算 Checksum 值
 
-e、写入事物日志文件流将序列化后的事物头、事物体及Checksum值写入到文件流中去，此时由于zookeeper使用的是BufferedOutputStream，因此写入的数据并非真正被写入磁盘文件上
+e、写入事物日志文件流，将序列化后的事物头、事物体及 Checksum 值写入到文件流中去，此时由于 zookeeper 使用的是 BufferedOutputStream，因此写入的数据并非真正被写入磁盘文件上
 
 f、事物日志刷入磁盘
 
 ### 3)日志截断
 
-在zookeeper运行过程中，可能会出现这样的情况，非Leader及其上记录的事物ID比Leader服务器大，那么这个机器就处于一个非法的运行状态。zookeeper遵循一个原则：只要集群中存在Leader，那么所有汲取都必须与 该leader的数据保持同步
+在 zookeeper 运行过程中，可能会出现这样的情况：非 Leader 及其上记录的事物 ID 比 Leader 服务器大，那么这个机器就处于一个非法的运行状态。zookeeper 遵循一个原则：只要集群中存在 Leader，那么所有机器都必须与该 Leader 的数据保持同步
 
-因此，一旦某台机器碰到上述情况，Leader会发送TRUNC命令给这个机器，要求其进行日志截断。Learner服务器在接收到该命令后，就会删除所有包含或大于从服务器的ZXID的事物日志文件‘
+因此，一旦某台机器碰到上述情况，Leader 会发送 TRUNC 命令给这个机器，要求其进行日志截断。Learner 服务器在接收到该命令后，就会删除所有包含或大于主服务器的 ZXID 的事物日志文件
 
 ## 3、snapshot——数据快照
 
-数据快照是zookeeper数据存储中另一个非常核心的运行机制。顾名思义，**数据快照用来记录zookeeper服务器上某一个时刻的全量内存数据内容，并将其写入到指定的磁盘文件中**
+数据快照是 zookeeper 数据存储中另一个非常核心的运行机制。顾名思义，**数据快照用来记录 zookeeper 服务器上某一个时刻的全量内存数据内容，并将其写入到指定的磁盘文件中**
 
-zookeeper会在进行若干次事物日志记录之后，将内存数据库的圈梁数据dump到本地文件中，这个过程就是数据快照。可以使用snapCount参数来配置每次数据快照之间事物操作次数，即zookeeper会在snapCount此事物日志记录后进行一个数据快照
+zookeeper 会在进行若干次事物日志记录之后，将内存数据库的全量数据 dump 到本地文件中，这个过程就是数据快照。可以使用 snapCount 参数来配置每次数据快照之间事物操作次数，即 zookeeper 会在snapCount 次事物日志记录后进行一个数据快照
 
 ## 4、初始化
 
-在zookeeper服务器启动期间，首先会进行数据初始化工作，用于将存储在磁盘上的数据文件夹在到zookeeper服务器内存中
+在 zookeeper 服务器启动期间，首先会进行数据初始化工作，用于将存储在磁盘上的数据文件加载到 zookeeper 服务器内存中
 
 **初始化流程：**
 
-### 1）初始化FileTxnSnapLog
+### 1）初始化 FileTxnSnapLog
 
-FileTxnSnapLog时zookeeper事物日志和快照数据访问层，用于衔接上层业务与底层数据存储。底层数据包含了**事物日志**和**快照数据**两部分，因此FileTxnSnapLog内部又分为FileTxnLog和FileSnap的初始化，分别代表事物日志管理器和快照数据管理器的初始化
+FileTxnSnapLog 时zookeeper 事物日志和快照数据访问层，用于衔接上层业务与底层数据存储。底层数据包含了**事物日志**和**快照数据**两部分，因此FileTxnSnapLog内部又分为FileTxnLog和FileSnap的初始化，分别代表事物日志管理器和快照数据管理器的初始化
 
 ### 2）初始化ZKDatabase
 
-构建完衔接层后，就要开始构建内存数据库ZKDatabase了。在初始化过程中，首先会构建一个初始化的DataTree，同时会将步骤1中初始化的FileTxnSnapLog交给ZKDatabase，以便内存数据库能够对事物日志和快照数据进行访问。在ZKDatabase初始化的时候，DataTree也会进行相应的初始化工作——创建一些zookeeper的磨人节点，包括/、/zookeeper/quota三个节点的创建
+构建完衔接层后，就要开始构建内存数据库ZKDatabase了。在初始化过程中，首先会构建一个初始化的DataTree，同时会将步骤1中初始化的FileTxnSnapLog交给ZKDatabase，以便内存数据库能够对事物日志和快照数据进行访问。在ZKDatabase初始化的时候，DataTree也会进行相应的初始化工作——创建一些zookeeper的默认节点，包括/、/zookeeper/quota三个节点的创建
 
 **注：**DataTree在每个ZooKeeper服务器内部都是单例
 
