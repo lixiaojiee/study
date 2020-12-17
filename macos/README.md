@@ -55,7 +55,7 @@ revoke all on databasename.tablename to 'username'@'%';
 
 - 查看授权（该命令需要 root 用户执行）
 ```
-show grants for 'router'@'%';
+show grants for 'username'@'%';
 ```
 
 - 刷新授权
