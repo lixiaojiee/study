@@ -41,7 +41,26 @@ create database databasename;
 - 授予权限给用户
 
 ```
-grant all/select/delete/create/update privileges on 'database.tablename'@'localhost' to 'username';
+grant all privileges on database.tablename to 'username'@'% identified by 'password';
+```
+或者
+```
+grant select,insert,update,create,delete,drop on database.tablename to 'username'@'%' identified by 'password';
+```
+
+- 收回授权
+```
+revoke all on databasename.tablename to 'username'@'%';
+```
+
+- 查看授权（该命令需要 root 用户执行）
+```
+show grants for 'router'@'%';
+```
+
+- 刷新授权
+```
+flush privileges;
 ```
 
 3、显示隐藏文件夹
