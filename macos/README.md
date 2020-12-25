@@ -50,7 +50,7 @@ grant select,insert,update,create,delete,drop on database.tablename to 'username
 
 - 收回授权
 ```
-revoke all on databasename.tablename to 'username'@'%';
+revoke all on databasename.tablename from 'username'@'%';
 ```
 
 - 查看授权（该命令需要 root 用户执行）
