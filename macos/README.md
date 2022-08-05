@@ -41,7 +41,7 @@ create database databasename;
 - 授予权限给用户
 
 ```
-grant all privileges on database.tablename to 'username'@'% identified by 'password';
+grant all privileges on database.tablename to 'username'@'%' identified by 'password';
 ```
 或者
 ```
